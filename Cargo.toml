@@ -1,0 +1,18 @@
+[package]
+name = "db_mem_api_server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.80"
+axum = "0.7"
+tokio = { version = "1.0", features = ["full"] }
+rusqlite = { version = "0.31", features = ["bundled"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tower-http = { version = "0.5", features = ["cors"] }
+uuid = { version = "1", features = [
+    "v4", # ランダム生成用
+    "v7", # タイムスタンプ順序付け用（必要に応じて）
+    "serde", # serde連携（必要な場合）
+] }
