@@ -50,6 +50,13 @@ curl -X POST http://localhost:8888/api/select \
 ```
 
 ***
+* delete
+```
+curl -X POST http://localhost:8888/api/update \
+  -H "Content-Type: application/json" \
+  -d '{"table": "temp", "sql": "DELETE FROM temp WHERE id = 1;"}'
+```
+***
 ### blog
 
 https://zenn.dev/knaka0209/scraps/6e295e6a1318a6
