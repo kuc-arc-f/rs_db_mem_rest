@@ -5,8 +5,11 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.80"
+argon2 = "0.4"
 axum = "0.7"
 tokio = { version = "1.0", features = ["full"] }
+password-hash = { version = "0.5.0", features = ["getrandom"] }
+rand_core = "0.6"     # Salt 生成に OsRng を使うため
 rusqlite = { version = "0.31", features = ["bundled"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
