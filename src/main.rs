@@ -16,6 +16,7 @@ use std::time::Duration;
 
 mod mod_model;
 mod mod_handle;
+mod mod_auth;
 
 const BACKUP_DB_PATH: &str = "./data/backup.db";
 const BACKUP_SQL_PATH: &str = "./data/backup.sql";
@@ -68,6 +69,8 @@ async fn main() {
     let app = Router::new()
         .route("/api/update", post(update))
         .route("/api/select", post(mod_handle::select_handle))
+        .route("/api/signup", post(mod_handle::user_create))
+        .route("/api/login", post(mod_handle::user_login))
         .with_state(state);
 
     // thread - backup

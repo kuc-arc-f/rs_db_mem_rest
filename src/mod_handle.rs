@@ -87,3 +87,94 @@ pub async fn select_handle(
     
     (StatusCode::CREATED, json_str.to_string())
 }
+
+pub async fn user_create(
+    State(state): State<super::AppState>,
+    Json(payload): Json<super::mod_model::UserCreateReq>,
+) -> (StatusCode, Json<super::mod_model::UserRes>) {
+    let mut user = super::mod_model::UserRes {
+        email: "".to_string(),
+        password: "".to_string(),
+    };
+
+    let conn = state.lock().unwrap();
+    println!("{:?}", payload);
+
+    let mut stmt = conn
+        .prepare("SELECT id, email FROM users WHERE email = ?1")
+        .unwrap();    
+    let mut rows = stmt.query(params![payload.email]).unwrap();
+    let mut user_ct = 0;
+    while let Some(row) = rows.next().unwrap() {
+        user_ct += 1;
+    }
+    println!("user_ct={}", user_ct);
+    if user_ct > 0 {
+        return (StatusCode::BAD_REQUEST , Json(user));
+    }
+    let pw = payload.password.clone();
+
+    // get-hash
+    let phc = super::mod_auth::hash_password(&pw).expect("error , hash_password");
+    println!("phc: {}", phc);
+
+    let ok = super::mod_auth::verify_password(&pw, &phc).expect("error , veryfy password");
+    println!("password ok? {}", ok);    
+    conn.execute(
+        "INSERT INTO users (email, password_hash) VALUES (?1, ?2)",
+        params![payload.email, phc],
+    )
+    .unwrap();
+    let id = conn.last_insert_rowid();
+    let sql: String = format!("INSERT INTO users (email, password_hash) VALUES ('{0}', '{1}')",
+        &payload.email, &phc
+    );
+    println!("sql={}", sql);
+    let mut array = super::GLOBAL_ARRAY.lock().unwrap();
+    array.push(sql);
+    
+    (StatusCode::CREATED, Json(user))
+}
+
+
+pub async fn user_login(
+    State(state): State<super::AppState>,
+    Json(payload): Json<super::mod_model::UserCreateReq>,
+) -> (StatusCode, Json<super::mod_model::UserRes>) {    
+    let user = super::mod_model::UserRes {
+        email: "".to_string(),
+        password: "".to_string(),
+    };
+    let conn = state.lock().unwrap();
+    // SELECT-User
+    let mut stmt = conn
+        .prepare("SELECT id, email , password_hash FROM users WHERE email = ?1")
+        .unwrap();    
+    let mut rows = stmt.query(params![payload.email]).unwrap();
+    let mut user_ct = 0;
+    let mut db_pass = "".to_string();
+    while let Some(row) = rows.next().unwrap() {
+        user_ct += 1;
+        db_pass = row.get(2).unwrap();
+    }
+    println!("user_ct={}", user_ct);
+    println!("db_pass={}", &db_pass);
+    if user_ct == 0 {
+        return (StatusCode::BAD_REQUEST , Json(user));
+    }    
+
+    println!("{:?}", payload);
+    let pw = payload.password.clone();
+
+    let phc = "".to_string();
+    let phc = db_pass.clone();
+    println!("phc: {}", phc);
+
+    let ok = super::mod_auth::verify_password(&pw, &phc).expect("error , veryfy password");
+    println!("password ok? {}", ok);    
+    if ok == false {
+        return (StatusCode::BAD_REQUEST, Json(user));
+    }
+
+    (StatusCode::OK, Json(user))
+}

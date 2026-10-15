@@ -9,3 +9,15 @@ pub struct QueItem {
     pub sql: String,
     pub uuid: String,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct UserRes {
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct UserCreateReq {
+    pub email: String,
+    pub password: String,
+}
