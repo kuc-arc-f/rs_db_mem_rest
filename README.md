@@ -57,6 +57,22 @@ curl -X POST http://localhost:8888/api/update \
   -d '{"table": "temp", "sql": "DELETE FROM temp WHERE id = 1;"}'
 ```
 ***
+* signup
+```
+curl -X POST http://localhost:8888/api/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@example.com", "password": "1111"}'
+```
+***
+* login
+
+```
+curl -X POST http://localhost:8888/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "you@example.com", "password": "1111"}'
+```
+
+***
 ### blog
 
 https://zenn.dev/knaka0209/scraps/6e295e6a1318a6
